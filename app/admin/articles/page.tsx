@@ -75,7 +75,7 @@ export default function ArticlesPage() {
             onClick={() => changeFilter(f)}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${filter === f ? "bg-purple-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:border-purple-400"}`}
           >
-            {{ all:"すべて", published:"公開中", draft:"下書き", scheduled:"予約済み" }[f]}
+            {({ all:"すべて", published:"公開中", draft:"下書き", scheduled:"予約済み" } as Record<string,string>)[f]}
           </button>
         ))}
       </div>

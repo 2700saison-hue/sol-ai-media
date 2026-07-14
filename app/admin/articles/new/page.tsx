@@ -115,7 +115,7 @@ export default function NewArticlePage() {
                 <label key={s} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="status" value={s} checked={form.status === s}
                     onChange={() => setForm(f => ({...f, status: s}))} className="text-purple-600" />
-                  <span className="text-sm">{{ draft:"下書き", published:"公開", scheduled:"予約公開" }[s as keyof typeof statusLabels]}</span>
+                  <span className="text-sm">{({ draft:"下書き", published:"公開", scheduled:"予約公開" } as Record<string,string>)[s]}</span>
                 </label>
               ))}
             </div>

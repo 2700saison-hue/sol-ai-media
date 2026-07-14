@@ -50,7 +50,7 @@ export default function KeywordsPage() {
         {["all","pending","published"].map((f: any) => (
           <button key={f} onClick={() => { setFilter(f); load(f === "all" ? undefined : f); }}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${filter === f ? "bg-purple-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:border-purple-400"}`}>
-            {{ all:"すべて", pending:"未着手", published:"公開済み" }[f]}
+            {({ all:"すべて", pending:"未着手", published:"公開済み" } as Record<string,string>)[f]}
           </button>
         ))}
       </div>
