@@ -99,7 +99,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   prisma.articleView.create({ data: { articleId: article.id, referer: "direct" } }).catch(() => {});
 
-  const [related, popular] = await Promise.all([
+  const [related, popular, prevNext] = await Promise.all([
     prisma.article.findMany({
       where: { status: "published", categoryId: article.categoryId, NOT: { id: article.id } },
       include: { category: true },
@@ -111,7 +111,20 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       orderBy: { views: { _count: "desc" } },
       take: 5,
     }),
+    Promise.all([
+      prisma.article.findFirst({
+        where: { status: "published", publishedAt: { lt: article.publishedAt || article.createdAt } },
+        orderBy: { publishedAt: "desc" },
+        select: { slug: true, title: true },
+      }),
+      prisma.article.findFirst({
+        where: { status: "published", publishedAt: { gt: article.publishedAt || article.createdAt } },
+        orderBy: { publishedAt: "asc" },
+        select: { slug: true, title: true },
+      }),
+    ]),
   ]);
+  const [prevArticle, nextArticle] = prevNext;
 
   const htmlContent = renderMarkdown(article.content);
   const headings = extractHeadings(article.content);
@@ -245,6 +258,32 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               <p className="text-sm font-semibold text-gray-700 mb-4">👇 この記事が役に立ったらシェアをお願いします！</p>
               <ShareButtons url={articleUrl} title={title} large />
             </div>
+
+            {/* 前後記事ナビゲーション */}
+            {(prevArticle || nextArticle) && (
+              <nav className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {prevArticle ? (
+                  <Link href={`/articles/${prevArticle.slug}`}
+                    className="group flex items-start gap-3 bg-white border border-gray-100 rounded-xl p-4 hover:shadow-md transition-shadow">
+                    <span className="text-purple-400 mt-0.5">←</span>
+                    <div>
+                      <p className="text-xs text-gray-400 mb-1">前の記事</p>
+                      <p className="text-sm font-semibold text-gray-700 group-hover:text-purple-600 line-clamp-2 transition-colors">{prevArticle.title}</p>
+                    </div>
+                  </Link>
+                ) : <div />}
+                {nextArticle ? (
+                  <Link href={`/articles/${nextArticle.slug}`}
+                    className="group flex items-start gap-3 bg-white border border-gray-100 rounded-xl p-4 hover:shadow-md transition-shadow sm:text-right sm:flex-row-reverse">
+                    <span className="text-purple-400 mt-0.5">→</span>
+                    <div>
+                      <p className="text-xs text-gray-400 mb-1">次の記事</p>
+                      <p className="text-sm font-semibold text-gray-700 group-hover:text-purple-600 line-clamp-2 transition-colors">{nextArticle.title}</p>
+                    </div>
+                  </Link>
+                ) : <div />}
+              </nav>
+            )}
 
             {/* 関連記事 */}
             {related.length > 0 && (
