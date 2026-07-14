@@ -16,6 +16,9 @@ export const metadata: Metadata = {
   creator: "AI活用ラボ",
   publisher: "AI活用ラボ",
   metadataBase: new URL("https://media.seasonsezon.co.jp"),
+  alternates: {
+    types: { "application/rss+xml": "https://media.seasonsezon.co.jp/feed" },
+  },
   verification: {
     google: "cARExcA_7tzkvOE198ZzcUS1FKgAkhbe65yj2In9bF8",
   },
