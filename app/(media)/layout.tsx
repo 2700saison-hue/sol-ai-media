@@ -29,7 +29,10 @@ export default function MediaLayout({ children }: { children: React.ReactNode })
               </Link>
             ))}
           </nav>
-          <Link href="/admin/dashboard" className="text-xs bg-purple-600 text-white px-3 py-1.5 rounded-lg hover:bg-purple-700">管理画面</Link>
+          <div className="flex items-center gap-2">
+            <Link href="/search" className="text-sm text-gray-500 hover:text-purple-600 px-2 py-1.5 rounded-md hover:bg-purple-50 transition-colors" aria-label="記事を検索">🔍</Link>
+            <Link href="/admin/dashboard" className="text-xs bg-purple-600 text-white px-3 py-1.5 rounded-lg hover:bg-purple-700">管理画面</Link>
+          </div>
         </div>
       </header>
       {children}
