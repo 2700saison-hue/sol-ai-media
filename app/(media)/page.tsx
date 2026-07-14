@@ -88,9 +88,27 @@ export default async function HomePage() {
           <div className="text-5xl mb-4">🤖</div>
           <h1 className="text-4xl font-bold mb-4">AI活用ラボ</h1>
           <p className="text-purple-200 text-lg mb-8">ChatGPT・Claude・Geminiの使い方から、AI副業・業務効率化まで<br />最新情報を毎日お届けします</p>
-          <div className="flex flex-wrap justify-center gap-3">
-            {["ChatGPT活用術","AI業務効率化","プロンプト技術","AI副業"].map((tag: any) => (
-              <span key={tag} className="bg-white/10 text-white text-sm px-4 py-1.5 rounded-full">{tag}</span>
+          <form action="/search" method="get" className="max-w-xl mx-auto mb-6">
+            <div className="flex gap-2">
+              <input type="text" name="q" placeholder="記事を検索する（例: ChatGPT使い方）"
+                className="flex-1 bg-white/10 border border-white/30 text-white placeholder-purple-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:bg-white/20 focus:border-white/60 transition" />
+              <button type="submit" className="bg-white text-purple-700 font-semibold px-5 py-3 rounded-xl text-sm hover:bg-purple-50 transition-colors">
+                検索
+              </button>
+            </div>
+          </form>
+          <div className="flex flex-wrap justify-center gap-2">
+            {[
+              { href: "/category/chatgpt", label: "💬 ChatGPT活用術" },
+              { href: "/category/ai-business", label: "⚡ AI業務効率化" },
+              { href: "/category/prompt", label: "✍️ プロンプト技術" },
+              { href: "/category/ai-income", label: "💰 AI副業" },
+              { href: "/category/ai-tools", label: "🛠 AIツール比較" },
+              { href: "/category/ai-news", label: "📰 AI最新ニュース" },
+            ].map((tag: any) => (
+              <Link key={tag.href} href={tag.href} className="bg-white/10 hover:bg-white/20 text-white text-sm px-4 py-1.5 rounded-full transition-colors border border-white/20">
+                {tag.label}
+              </Link>
             ))}
           </div>
         </div>
