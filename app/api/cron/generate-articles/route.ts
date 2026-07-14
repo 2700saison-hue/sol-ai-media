@@ -122,7 +122,7 @@ export async function GET(req: NextRequest) {
             wordCount: result.content.length,
             readingTime: Math.max(1, Math.floor(result.content.length / 400)),
             aiGenerated: true,
-            categoryId: CATEGORY_IDS[kw.category] || "cmrg33bif0001o3h1ok0jshe7",
+            categoryId: (kw.category ? CATEGORY_IDS[kw.category] : null) || "cmrg33bif0001o3h1ok0jshe7",
             status: "published",
             publishedAt: now,
           },
