@@ -98,7 +98,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <div className="mt-8 bg-amber-50 rounded-xl border border-amber-200 p-5">
               <h3 className="font-semibold text-amber-800 mb-3">🔗 おすすめツール・サービス</h3>
               <div className="space-y-3">
-                {article.affiliateLinks.map(al => (
+                {article.affiliateLinks.map((al: any) => (
                   <div key={al.id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-amber-100">
                     <div>
                       <p className="font-medium text-gray-800 text-sm">{al.product.name}</p>
