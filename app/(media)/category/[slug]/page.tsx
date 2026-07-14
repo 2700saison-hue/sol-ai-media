@@ -9,11 +9,44 @@ import type { Metadata } from "next";
 
 export const revalidate = 300;
 
+const SITE_URL = "https://media.seasonsezon.co.jp";
+
+const CATEGORY_ICONS: Record<string, string> = {
+  chatgpt: "💬",
+  "ai-business": "⚡",
+  "ai-tools": "🛠",
+  prompt: "✍️",
+  "ai-income": "💰",
+  "ai-news": "📰",
+};
+
+const CATEGORY_COLORS: Record<string, string> = {
+  chatgpt: "from-emerald-100 to-teal-100",
+  "ai-business": "from-purple-100 to-indigo-100",
+  "ai-tools": "from-amber-100 to-orange-100",
+  prompt: "from-red-100 to-pink-100",
+  "ai-income": "from-violet-100 to-purple-100",
+  "ai-news": "from-cyan-100 to-blue-100",
+};
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const cat = await prisma.category.findUnique({ where: { slug } });
   if (!cat) return { title: "カテゴリが見つかりません" };
-  return { title: `${cat.name} | AI活用ラボ`, description: cat.description || undefined };
+  const desc = cat.description || `${cat.name}に関する記事一覧。ChatGPT・Claude・Geminiの活用術から最新AI情報まで。`;
+  return {
+    title: `${cat.name}の記事一覧 | AI活用ラボ`,
+    description: desc,
+    alternates: { canonical: `${SITE_URL}/category/${slug}` },
+    openGraph: {
+      title: `${cat.name}の記事一覧 | AI活用ラボ`,
+      description: desc,
+      url: `${SITE_URL}/category/${slug}`,
+      siteName: "AI活用ラボ",
+      locale: "ja_JP",
+      type: "website",
+    },
+  };
 }
 
 export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -21,37 +54,117 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
   const category = await prisma.category.findUnique({ where: { slug } });
   if (!category) notFound();
 
-  const articles = await prisma.article.findMany({
-    where: { status: "published", categoryId: category.id },
-    include: { _count: { select: { views: true } } },
-    orderBy: { publishedAt: "desc" },
-    take: 30,
-  });
+  const [articles, allCategories] = await Promise.all([
+    prisma.article.findMany({
+      where: { status: "published", categoryId: category.id },
+      include: { _count: { select: { views: true } } },
+      orderBy: { publishedAt: "desc" },
+      take: 50,
+    }),
+    prisma.category.findMany({
+      include: { _count: { select: { articles: { where: { status: "published" } } } } },
+      orderBy: { name: "asc" },
+    }),
+  ]);
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "ホーム", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: category.name, item: `${SITE_URL}/category/${slug}` },
+    ],
+  };
+
+  const collectionJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `${category.name} | AI活用ラボ`,
+    description: category.description || `${category.name}に関する記事一覧`,
+    url: `${SITE_URL}/category/${slug}`,
+    inLanguage: "ja",
+    numberOfItems: articles.length,
+  };
+
+  const icon = CATEGORY_ICONS[slug] || "🤖";
+  const gradient = CATEGORY_COLORS[slug] || "from-purple-100 to-indigo-100";
 
   return (
-    <main className="max-w-5xl mx-auto px-4 py-10">
-      <div className="mb-8">
-        <Link href="/" className="text-sm text-gray-400 hover:text-gray-600">← ホーム</Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-2">{category.name}</h1>
-        {category.description && <p className="text-gray-500 mt-1">{category.description}</p>}
-        <p className="text-sm text-gray-400 mt-1">{articles.length}件の記事</p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {articles.map((article: any) => (
-          <Link key={article.id} href={`/articles/${article.slug}`}
-            className="flex gap-3 bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md transition-shadow group">
-            <div className="w-16 h-16 flex-shrink-0 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-lg flex items-center justify-center text-2xl">🤖</div>
-            <div className="flex-1 min-w-0">
-              <h2 className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors line-clamp-2 text-sm">{article.title}</h2>
-              <div className="flex items-center gap-3 mt-2">
-                <span className="text-xs text-gray-400">{formatDate(article.publishedAt || article.createdAt)}</span>
-                <span className="text-xs text-gray-400">👁 {(article._count?.views||0).toLocaleString()}</span>
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd) }} />
+      <main className="max-w-6xl mx-auto px-4 py-10">
+        {/* パンくずリスト */}
+        <nav className="flex items-center gap-2 text-sm text-gray-400 mb-6">
+          <Link href="/" className="hover:text-purple-600 transition-colors">ホーム</Link>
+          <span>/</span>
+          <span className="text-gray-700">{category.name}</span>
+        </nav>
+
+        <div className="flex gap-8">
+          {/* メインコンテンツ */}
+          <div className="flex-1 min-w-0">
+            {/* カテゴリヘッダー */}
+            <div className={`bg-gradient-to-br ${gradient} rounded-2xl p-6 mb-8 flex items-center gap-4`}>
+              <span className="text-5xl">{icon}</span>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">{category.name}</h1>
+                {category.description && <p className="text-gray-600 mt-1 text-sm">{category.description}</p>}
+                <p className="text-sm text-gray-500 mt-2">{articles.length}件の記事</p>
               </div>
             </div>
-          </Link>
-        ))}
-        {articles.length === 0 && <p className="col-span-2 text-center py-20 text-gray-400">このカテゴリの記事を準備中です</p>}
-      </div>
-    </main>
+
+            {/* 記事グリッド */}
+            {articles.length === 0 ? (
+              <div className="text-center py-20 text-gray-400">
+                <p className="text-4xl mb-4">{icon}</p>
+                <p>このカテゴリの記事を準備中です</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {articles.map((article: any) => (
+                  <Link key={article.id} href={`/articles/${article.slug}`}
+                    className="group block bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+                    <div className={`h-28 bg-gradient-to-br ${gradient} flex items-center justify-center text-4xl`}>
+                      {icon}
+                    </div>
+                    <div className="p-4">
+                      <h2 className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors line-clamp-2 text-sm mb-2">{article.title}</h2>
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs text-gray-400">{formatDate(article.publishedAt || article.createdAt)}</span>
+                        <span className="text-xs text-gray-400">👁 {(article._count?.views || 0).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* サイドバー: 他カテゴリ */}
+          <aside className="hidden lg:block w-60 flex-shrink-0">
+            <div className="bg-white rounded-xl border border-gray-100 p-4 sticky top-4">
+              <h2 className="font-bold text-gray-900 text-sm mb-4">📂 カテゴリ一覧</h2>
+              <ul className="space-y-2">
+                {allCategories.map((cat: any) => (
+                  <li key={cat.id}>
+                    <Link href={`/category/${cat.slug}`}
+                      className={`flex items-center justify-between text-sm px-3 py-2 rounded-lg transition-colors ${cat.slug === slug ? "bg-purple-50 text-purple-700 font-medium" : "text-gray-600 hover:bg-gray-50"}`}>
+                      <span>{CATEGORY_ICONS[cat.slug] || "🤖"} {cat.name}</span>
+                      <span className="text-xs text-gray-400">{cat._count?.articles || 0}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-6 pt-4 border-t border-gray-100">
+                <Link href="/articles" className="block text-center text-sm text-purple-600 hover:underline">
+                  すべての記事 →
+                </Link>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </main>
+    </>
   );
 }
