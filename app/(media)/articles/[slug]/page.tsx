@@ -6,8 +6,12 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 import type { Metadata } from "next";
+import ShareButtons from "@/components/ShareButtons";
+import TableOfContents from "@/components/TableOfContents";
 
 export const revalidate = 300;
+
+const SITE_URL = process.env.NEXTAUTH_URL || "https://media.seasonsezon.co.jp";
 
 async function getArticle(slug: string) {
   return prisma.article.findUnique({
@@ -20,33 +24,72 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const article = await getArticle(slug);
   if (!article) return { title: "記事が見つかりません" };
+  const title = article.seoTitle || article.title;
+  const description = article.seoDescription || article.excerpt;
+  const url = `${SITE_URL}/articles/${article.slug}`;
   return {
-    title: article.seoTitle || article.title,
-    description: article.seoDescription || article.excerpt,
+    title,
+    description,
     keywords: article.seoKeywords || undefined,
+    alternates: { canonical: url },
     openGraph: {
-      title: article.seoTitle || article.title,
-      description: article.seoDescription || article.excerpt,
+      title,
+      description,
       type: "article",
+      url,
       publishedTime: article.publishedAt?.toISOString(),
+      modifiedTime: article.updatedAt?.toISOString(),
+      siteName: "AI活用ラボ",
+      locale: "ja_JP",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
     },
   };
 }
 
 function renderMarkdown(content: string): string {
   return content
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-purple-600 hover:underline">$1</a>')
-    .replace(/^- (.+)$/gm, '<li>$1</li>')
-    .replace(/(<li>.*<\/li>)/gs, '<ul class="list-disc pl-6 mb-4 space-y-1">$1</ul>')
-    .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
-    .replace(/\n\n/g, '</p><p class="mb-4 leading-relaxed text-gray-700">')
-    .replace(/^(?!<[hul]|<\/[hul])/gm, '')
-    .replace(/^(.+)$/gm, (m) => m.startsWith('<') ? m : `<p class="mb-4 leading-relaxed text-gray-700">${m}</p>`);
+    .replace(/^### (.+)$/gm, (_, t) => `<h3 id="${encodeURIComponent(t)}" class="text-lg font-bold text-gray-900 mt-8 mb-3 scroll-mt-20">${t}</h3>`)
+    .replace(/^## (.+)$/gm, (_, t) => `<h2 id="${encodeURIComponent(t)}" class="text-xl font-bold text-gray-900 mt-10 mb-4 pb-2 border-b border-gray-100 scroll-mt-20">${t}</h2>`)
+    .replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold text-gray-900 mt-10 mb-4">$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+    .replace(/`([^`]+)`/g, '<code class="bg-gray-100 text-purple-700 text-sm px-1.5 py-0.5 rounded font-mono">$1</code>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-purple-600 hover:underline font-medium">$1</a>')
+    .replace(/^> (.+)$/gm, '<blockquote class="border-l-4 border-purple-400 pl-4 py-1 my-4 bg-purple-50 rounded-r-lg text-gray-700 italic">$1</blockquote>')
+    .replace(/^- (.+)$/gm, '<li class="text-gray-700 leading-relaxed ml-4 list-disc">$1</li>')
+    .replace(/^\d+\. (.+)$/gm, '<li class="text-gray-700 leading-relaxed ml-4 list-decimal">$1</li>')
+    .replace(/\n\n/g, '</p><p class="mb-5 leading-[1.9] text-gray-700">')
+    .replace(/^(?!<[hublq]|<\/[hublq])/gm, '')
+    .replace(/^(.+)$/gm, (m) => m.startsWith('<') ? m : `<p class="mb-5 leading-[1.9] text-gray-700">${m}</p>`);
+}
+
+function extractHeadings(content: string): { id: string; text: string; level: number }[] {
+  const headings: { id: string; text: string; level: number }[] = [];
+  for (const m of content.matchAll(/^(#{2,3}) (.+)$/gm)) {
+    headings.push({ id: encodeURIComponent(m[2]), text: m[2], level: m[1].length });
+  }
+  return headings;
+}
+
+function extractFAQ(content: string): { q: string; a: string }[] {
+  const faqs: { q: string; a: string }[] = [];
+  const lines = content.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const hMatch = lines[i].match(/^#{2,3} (.+)/);
+    if (hMatch && (hMatch[1].includes('？') || hMatch[1].includes('?') || hMatch[1].startsWith('Q'))) {
+      const answerLines: string[] = [];
+      for (let j = i + 1; j < lines.length && !lines[j].match(/^#{2,3}/); j++) {
+        if (lines[j].trim()) answerLines.push(lines[j].replace(/[*#`]/g, '').trim());
+      }
+      if (answerLines.length > 0) {
+        faqs.push({ q: hMatch[1].trim(), a: answerLines.join(' ').substring(0, 300) });
+      }
+    }
+  }
+  return faqs.slice(0, 5);
 }
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
@@ -54,101 +97,223 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const article = await getArticle(slug);
   if (!article || article.status !== "published") notFound();
 
-  // Record view (non-blocking)
   prisma.articleView.create({ data: { articleId: article.id, referer: "direct" } }).catch(() => {});
 
-  // Related articles
-  const related = await prisma.article.findMany({
-    where: { status: "published", categoryId: article.categoryId, NOT: { id: article.id } },
-    include: { category: true },
-    take: 3,
-    orderBy: { views: { _count: "desc" } },
-  });
+  const [related, popular] = await Promise.all([
+    prisma.article.findMany({
+      where: { status: "published", categoryId: article.categoryId, NOT: { id: article.id } },
+      include: { category: true },
+      take: 4,
+      orderBy: { views: { _count: "desc" } },
+    }),
+    prisma.article.findMany({
+      where: { status: "published", NOT: { id: article.id } },
+      orderBy: { views: { _count: "desc" } },
+      take: 5,
+    }),
+  ]);
 
   const htmlContent = renderMarkdown(article.content);
+  const headings = extractHeadings(article.content);
+  const faqs = extractFAQ(article.content);
+  const articleUrl = `${SITE_URL}/articles/${article.slug}`;
+  const title = article.seoTitle || article.title;
+
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.title,
+    description: article.excerpt,
+    url: articleUrl,
+    datePublished: article.publishedAt?.toISOString(),
+    dateModified: article.updatedAt?.toISOString(),
+    author: { "@type": "Organization", name: "AI活用ラボ編集部", url: SITE_URL },
+    publisher: { "@type": "Organization", name: "AI活用ラボ", url: SITE_URL },
+    mainEntityOfPage: { "@type": "WebPage", "@id": articleUrl },
+    inLanguage: "ja",
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "ホーム", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "記事一覧", item: `${SITE_URL}/articles` },
+      ...(article.category ? [{ "@type": "ListItem", position: 3, name: article.category.name, item: `${SITE_URL}/category/${article.category.slug}` }] : []),
+      { "@type": "ListItem", position: article.category ? 4 : 3, name: article.title, item: articleUrl },
+    ],
+  };
+
+  const faqJsonLd = faqs.length > 0 ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map(f => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  } : null;
 
   return (
-    <main className="max-w-5xl mx-auto px-4 py-10">
-      <div className="grid grid-cols-3 gap-8">
-        {/* Article */}
-        <article className="col-span-2">
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      {faqJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />}
+
+      <main className="max-w-6xl mx-auto px-4 py-8">
+        {/* パンくずリスト */}
+        <nav aria-label="パンくずリスト" className="flex items-center gap-1.5 text-sm text-gray-500 mb-6 flex-wrap">
+          <Link href="/" className="hover:text-purple-600">ホーム</Link>
+          <span>›</span>
+          <Link href="/articles" className="hover:text-purple-600">記事一覧</Link>
           {article.category && (
-            <Link href={`/category/${article.category.slug}`}
-              className="inline-block text-sm text-purple-600 bg-purple-50 px-3 py-1 rounded-full mb-4 hover:bg-purple-100">
-              {article.category.name}
-            </Link>
+            <>
+              <span>›</span>
+              <Link href={`/category/${article.category.slug}`} className="hover:text-purple-600">{article.category.name}</Link>
+            </>
           )}
-          <h1 className="text-2xl font-bold text-gray-900 mb-4 leading-tight">{article.title}</h1>
-          <div className="flex items-center gap-4 text-sm text-gray-400 mb-6 pb-6 border-b border-gray-100">
-            <span>📅 {formatDate(article.publishedAt || article.createdAt)}</span>
-            <span>📖 約{article.readingTime}分</span>
-            {article.aiGenerated && <span className="bg-purple-100 text-purple-600 text-xs px-2 py-0.5 rounded-full">AI生成記事</span>}
-          </div>
+          <span>›</span>
+          <span className="text-gray-400 truncate max-w-xs">{article.title}</span>
+        </nav>
 
-          {/* Excerpt */}
-          <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 mb-6">
-            <p className="text-sm text-gray-700 leading-relaxed">{article.excerpt}</p>
-          </div>
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-10">
+          {/* 記事本文 */}
+          <article>
+            {article.category && (
+              <Link href={`/category/${article.category.slug}`}
+                className="inline-block text-sm text-purple-600 bg-purple-50 px-3 py-1 rounded-full mb-4 hover:bg-purple-100 font-medium">
+                {article.category.name}
+              </Link>
+            )}
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 leading-tight">{article.title}</h1>
+            <div className="flex items-center flex-wrap gap-4 text-sm text-gray-400 mb-6 pb-6 border-b border-gray-100">
+              <span>📅 {formatDate(article.publishedAt || article.createdAt)}</span>
+              <span>📖 約{article.readingTime}分で読める</span>
+              {article.aiGenerated && <span className="bg-purple-100 text-purple-600 text-xs px-2 py-0.5 rounded-full">AI生成記事</span>}
+            </div>
 
-          {/* Content */}
-          <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+            {/* SNSシェア（上部） */}
+            <div className="mb-6">
+              <ShareButtons url={articleUrl} title={title} />
+            </div>
 
-          {/* Affiliate links */}
-          {article.affiliateLinks.length > 0 && (
-            <div className="mt-8 bg-amber-50 rounded-xl border border-amber-200 p-5">
-              <h3 className="font-semibold text-amber-800 mb-3">🔗 おすすめツール・サービス</h3>
-              <div className="space-y-3">
-                {article.affiliateLinks.map((al: any) => (
-                  <div key={al.id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-amber-100">
-                    <div>
-                      <p className="font-medium text-gray-800 text-sm">{al.product.name}</p>
-                      {al.product.description && <p className="text-xs text-gray-500">{al.product.description}</p>}
+            {/* リード文 */}
+            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-100 rounded-xl p-5 mb-8">
+              <p className="text-sm text-gray-700 leading-relaxed">{article.excerpt}</p>
+            </div>
+
+            {/* 目次 */}
+            {headings.length >= 3 && <TableOfContents headings={headings} />}
+
+            {/* 本文 */}
+            <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: htmlContent }} />
+
+            {/* アフィリエイトリンク */}
+            {article.affiliateLinks.length > 0 && (
+              <div className="mt-10 bg-amber-50 rounded-xl border border-amber-200 p-5">
+                <h3 className="font-semibold text-amber-800 mb-3 text-lg">🔗 この記事で紹介したツール・サービス</h3>
+                <div className="space-y-3">
+                  {article.affiliateLinks.map((al: any) => (
+                    <div key={al.id} className="flex items-center justify-between bg-white rounded-lg p-3 border border-amber-100">
+                      <div>
+                        <p className="font-medium text-gray-800 text-sm">{al.product.name}</p>
+                        {al.product.description && <p className="text-xs text-gray-500 mt-0.5">{al.product.description}</p>}
+                      </div>
+                      <a href={al.product.url} target="_blank" rel="noopener noreferrer sponsored"
+                        className="bg-amber-500 hover:bg-amber-600 text-white text-xs px-4 py-2 rounded-lg font-medium whitespace-nowrap ml-4 transition-colors">
+                        詳しくはこちら →
+                      </a>
                     </div>
-                    <a href={al.product.url} target="_blank" rel="noopener noreferrer sponsored"
-                      className="bg-amber-500 hover:bg-amber-600 text-white text-xs px-4 py-2 rounded-lg font-medium whitespace-nowrap">
-                      詳しくはこちら →
-                    </a>
-                  </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* タグ */}
+            {article.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-8 pt-6 border-t border-gray-100">
+                {article.tags.map((at: any) => (
+                  <span key={at.tagId} className="text-xs bg-gray-100 text-gray-600 px-3 py-1.5 rounded-full">
+                    #{at.tag.name}
+                  </span>
                 ))}
               </div>
+            )}
+
+            {/* SNSシェア（記事末尾） */}
+            <div className="mt-10 p-6 bg-gray-50 rounded-xl text-center border border-gray-100">
+              <p className="text-sm font-semibold text-gray-700 mb-4">👇 この記事が役に立ったらシェアをお願いします！</p>
+              <ShareButtons url={articleUrl} title={title} large />
             </div>
-          )}
 
-          {/* Tags */}
-          {article.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-6">
-              {article.tags.map((at: any) => (
-                <span key={at.tagId} className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">#{at.tag.name}</span>
-              ))}
+            {/* 関連記事 */}
+            {related.length > 0 && (
+              <section className="mt-12">
+                <h2 className="text-lg font-bold text-gray-900 mb-5 flex items-center gap-2">
+                  <span>📚</span> 関連記事
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {related.map((r: any) => (
+                    <Link key={r.id} href={`/articles/${r.slug}`}
+                      className="block group bg-white border border-gray-100 rounded-xl p-4 hover:shadow-md transition-shadow">
+                      {r.category && (
+                        <span className="text-xs text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full mb-2 inline-block">{r.category.name}</span>
+                      )}
+                      <p className="text-sm font-semibold text-gray-800 group-hover:text-purple-600 line-clamp-2 transition-colors">{r.title}</p>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+          </article>
+
+          {/* サイドバー */}
+          <aside className="space-y-6 lg:sticky lg:top-20 self-start">
+            <div className="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-5 text-white">
+              <h3 className="font-semibold mb-2">📩 AIの活用でお悩みですか？</h3>
+              <p className="text-sm text-purple-200 mb-3">専門家に無料相談できます</p>
+              <a href="mailto:contact@ai-media.jp"
+                className="bg-white text-purple-600 text-sm font-semibold px-4 py-2 rounded-lg hover:bg-purple-50 block text-center transition-colors">
+                無料相談はこちら →
+              </a>
             </div>
-          )}
-        </article>
 
-        {/* Sidebar */}
-        <aside className="space-y-5">
-          <div className="bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl p-5 text-white">
-            <h3 className="font-semibold mb-2">📩 お問い合わせ</h3>
-            <p className="text-sm text-purple-200 mb-3">AI活用の相談・メディア掲載のご依頼はこちらから</p>
-            <a href="mailto:contact@ai-media.jp" className="bg-white text-purple-600 text-sm font-medium px-4 py-2 rounded-lg hover:bg-purple-50 block text-center">
-              メールで相談する
-            </a>
-          </div>
+            {popular.length > 0 && (
+              <div className="bg-white rounded-xl border border-gray-100 p-5">
+                <h3 className="font-bold text-gray-800 mb-4 text-sm flex items-center gap-1.5">🔥 人気記事</h3>
+                <div className="space-y-3">
+                  {popular.map((p: any, i: number) => (
+                    <Link key={p.id} href={`/articles/${p.slug}`}
+                      className="flex items-start gap-3 group hover:bg-gray-50 rounded-lg p-1.5 -mx-1.5 transition-colors">
+                      <span className="flex-shrink-0 w-6 h-6 bg-purple-100 text-purple-600 rounded-full text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+                      <p className="text-xs text-gray-700 group-hover:text-purple-600 line-clamp-2 font-medium transition-colors">{p.title}</p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
 
-          {related.length > 0 && (
             <div className="bg-white rounded-xl border border-gray-100 p-5">
-              <h3 className="font-semibold text-gray-800 mb-3 text-sm">関連記事</h3>
-              <div className="space-y-3">
-                {related.map((r: any) => (
-                  <Link key={r.id} href={`/articles/${r.slug}`} className="block hover:bg-gray-50 rounded-lg p-2 -mx-2 transition-colors group">
-                    <p className="text-sm text-gray-800 group-hover:text-purple-600 line-clamp-2 font-medium">{r.title}</p>
-                    <p className="text-xs text-gray-400 mt-1">{r.category?.name}</p>
+              <h3 className="font-bold text-gray-800 mb-4 text-sm">📁 カテゴリ</h3>
+              <div className="space-y-1.5">
+                {[
+                  { slug: "chatgpt", name: "ChatGPT活用術", emoji: "💬" },
+                  { slug: "ai-business", name: "AI業務効率化", emoji: "💼" },
+                  { slug: "ai-tools", name: "AIツール比較", emoji: "🛠" },
+                  { slug: "prompt", name: "プロンプト技術", emoji: "✍️" },
+                  { slug: "ai-income", name: "AI副業・収益化", emoji: "💰" },
+                  { slug: "ai-news", name: "AI最新ニュース", emoji: "📰" },
+                ].map(c => (
+                  <Link key={c.slug} href={`/category/${c.slug}`}
+                    className="flex items-center gap-2 text-sm text-gray-600 hover:text-purple-600 hover:bg-purple-50 px-3 py-2 rounded-lg transition-colors">
+                    <span>{c.emoji}</span>{c.name}
                   </Link>
                 ))}
               </div>
             </div>
-          )}
-        </aside>
-      </div>
-    </main>
+          </aside>
+        </div>
+      </main>
+    </>
   );
 }
