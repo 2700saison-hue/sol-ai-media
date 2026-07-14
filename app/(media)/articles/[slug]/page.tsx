@@ -51,8 +51,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 function renderMarkdown(content: string): string {
-  return content
+  // 「この記事でわかること」セクションを特別なボックスで表示
+  let processed = content.replace(
+    /## (この記事でわかること|この記事でわかる|この記事でわかること・ポイント)\n([\s\S]*?)(?=\n## )/,
+    (_, title, body) => {
+      const items = body.trim().split('\n').filter((l: string) => l.trim().startsWith('-')).map((l: string) =>
+        `<li class="flex items-start gap-2 text-sm text-gray-700"><span class="text-purple-500 mt-0.5 flex-shrink-0">✓</span><span>${l.replace(/^-\s*/, '')}</span></li>`
+      ).join('');
+      return `<div class="bg-blue-50 border border-blue-100 rounded-xl p-5 my-6 not-prose"><h2 class="font-bold text-blue-900 mb-3 flex items-center gap-2">📋 ${title}</h2><ul class="space-y-2">${items}</ul></div>\n## `;
+    }
+  );
+
+  return processed
     .replace(/^### (.+)$/gm, (_, t) => `<h3 id="${encodeURIComponent(t)}" class="text-lg font-bold text-gray-900 mt-8 mb-3 scroll-mt-20">${t}</h3>`)
+    .replace(/^## (よくある質問|FAQ|Q&A)$/gm, (_, t) => `<h2 id="${encodeURIComponent(t)}" class="text-xl font-bold text-gray-900 mt-10 mb-4 pb-2 border-b-2 border-purple-200 scroll-mt-20">💬 ${t}</h2>`)
     .replace(/^## (.+)$/gm, (_, t) => `<h2 id="${encodeURIComponent(t)}" class="text-xl font-bold text-gray-900 mt-10 mb-4 pb-2 border-b border-gray-100 scroll-mt-20">${t}</h2>`)
     .replace(/^# (.+)$/gm, '<h1 class="text-2xl font-bold text-gray-900 mt-10 mb-4">$1</h1>')
     .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
