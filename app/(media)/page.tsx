@@ -4,8 +4,26 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
+import type { Metadata } from "next";
 
 export const revalidate = 60;
+
+const SITE_URL = "https://media.seasonsezon.co.jp";
+
+export const metadata: Metadata = {
+  title: "AI活用ラボ | ChatGPT・Claude・Geminiの使い方・副業・業務効率化",
+  description: "ChatGPT・Claude・Geminiなど最新AIツールの使い方・活用事例・AI副業情報を毎日お届け。初心者から上級者まで役立つ実践的なAI情報メディアです。",
+  keywords: "ChatGPT,Claude,Gemini,AI活用,AI副業,業務効率化,プロンプト,AIツール",
+  alternates: { canonical: SITE_URL },
+  openGraph: {
+    title: "AI活用ラボ | ChatGPT・Claude・Geminiの使い方・副業・業務効率化",
+    description: "最新AIツールの使い方・活用事例・AI副業情報を毎日お届け",
+    url: SITE_URL,
+    siteName: "AI活用ラボ",
+    locale: "ja_JP",
+    type: "website",
+  },
+};
 
 async function getArticles() {
   return prisma.article.findMany({
@@ -37,7 +55,32 @@ const CATEGORY_COLORS: Record<string, string> = {
 export default async function HomePage() {
   const [articles, featured] = await Promise.all([getArticles(), getFeatured()]);
 
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "AI活用ラボ",
+    url: SITE_URL,
+    description: "ChatGPT・Claude・Geminiなど最新AIツールの使い方・活用事例・AI副業情報メディア",
+    inLanguage: "ja",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: { "@type": "EntryPoint", urlTemplate: `${SITE_URL}/articles?q={search_term_string}` },
+      "query-input": "required name=search_term_string",
+    },
+  };
+
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "AI活用ラボ",
+    url: SITE_URL,
+    contactPoint: { "@type": "ContactPoint", email: "contact@ai-media.jp", contactType: "customer support" },
+  };
+
   return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }} />
     <main>
       {/* Hero */}
       <section className="bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 text-white py-16">
@@ -130,5 +173,6 @@ export default async function HomePage() {
         </section>
       </div>
     </main>
+    </>
   );
 }

@@ -4,8 +4,15 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
+import type { Metadata } from "next";
 
 export const revalidate = 60;
+
+export const metadata: Metadata = {
+  title: "AI活用ラボ 記事一覧 | ChatGPT・Claude・Gemini活用術",
+  description: "ChatGPT・Claude・Geminiなど最新AIツールの使い方・副業・業務効率化に関する記事一覧。実践的なノウハウを毎日更新中。",
+  alternates: { canonical: "https://media.seasonsezon.co.jp/articles" },
+};
 
 export default async function ArticlesPage() {
   const articles = await prisma.article.findMany({

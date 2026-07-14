@@ -9,8 +9,13 @@ import { SessionProvider } from "@/components/SessionProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: { default: "AI活用ラボ", template: "%s | AI活用ラボ" },
-  description: "最新AIツールの使い方・活用事例・副業情報を毎日お届け",
+  title: { default: "AI活用ラボ | ChatGPT・Claude・Gemini活用メディア", template: "%s | AI活用ラボ" },
+  description: "ChatGPT・Claude・Geminiなど最新AIツールの使い方・活用事例・AI副業情報を毎日お届け。初心者から上級者まで役立つ実践的なAI情報メディアです。",
+  keywords: ["ChatGPT", "Claude", "Gemini", "AI活用", "AI副業", "業務効率化", "プロンプト", "AIツール比較"],
+  authors: [{ name: "AI活用ラボ編集部" }],
+  creator: "AI活用ラボ",
+  publisher: "AI活用ラボ",
+  metadataBase: new URL("https://media.seasonsezon.co.jp"),
   verification: {
     google: "cARExcA_7tzkvOE198ZzcUS1FKgAkhbe65yj2In9bF8",
   },
@@ -18,6 +23,17 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ja_JP",
     siteName: "AI活用ラボ",
+    url: "https://media.seasonsezon.co.jp",
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@ai_katsuyou_lab",
+    creator: "@ai_katsuyou_lab",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large", "max-video-preview": -1 },
   },
 };
 
