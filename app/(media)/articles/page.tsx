@@ -8,46 +8,131 @@ import type { Metadata } from "next";
 
 export const revalidate = 60;
 
+const SITE_URL = "https://media.seasonsezon.co.jp";
+
 export const metadata: Metadata = {
   title: "AI活用ラボ 記事一覧 | ChatGPT・Claude・Gemini活用術",
   description: "ChatGPT・Claude・Geminiなど最新AIツールの使い方・副業・業務効率化に関する記事一覧。実践的なノウハウを毎日更新中。",
-  alternates: { canonical: "https://media.seasonsezon.co.jp/articles" },
+  alternates: { canonical: `${SITE_URL}/articles` },
+  openGraph: {
+    title: "AI活用ラボ 記事一覧 | ChatGPT・Claude・Gemini活用術",
+    description: "最新AIツールの使い方・副業・業務効率化を網羅した記事一覧",
+    url: `${SITE_URL}/articles`,
+    siteName: "AI活用ラボ",
+    locale: "ja_JP",
+    type: "website",
+  },
+};
+
+const CATEGORY_COLORS: Record<string, string> = {
+  chatgpt: "bg-emerald-100 text-emerald-700",
+  "ai-business": "bg-purple-100 text-purple-700",
+  "ai-tools": "bg-amber-100 text-amber-700",
+  prompt: "bg-red-100 text-red-700",
+  "ai-income": "bg-violet-100 text-violet-700",
+  "ai-news": "bg-cyan-100 text-cyan-700",
+};
+
+const CATEGORY_ICONS: Record<string, string> = {
+  chatgpt: "💬", "ai-business": "⚡", "ai-tools": "🛠", prompt: "✍️", "ai-income": "💰", "ai-news": "📰",
 };
 
 export default async function ArticlesPage() {
-  const articles = await prisma.article.findMany({
-    where: { status: "published" },
-    include: { category: true, _count: { select: { views: true } } },
-    orderBy: { publishedAt: "desc" },
-    take: 50,
-  });
+  const [articles, categories] = await Promise.all([
+    prisma.article.findMany({
+      where: { status: "published" },
+      include: { category: true, _count: { select: { views: true } } },
+      orderBy: { publishedAt: "desc" },
+      take: 100,
+    }),
+    prisma.category.findMany({
+      include: { _count: { select: { articles: { where: { status: "published" } } } } },
+      orderBy: { name: "asc" },
+    }),
+  ]);
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "ホーム", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "記事一覧", item: `${SITE_URL}/articles` },
+    ],
+  };
 
   return (
-    <main className="max-w-5xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">すべての記事 ({articles.length}件)</h1>
-      <div className="space-y-4">
-        {articles.map((article: any) => (
-          <Link key={article.id} href={`/articles/${article.slug}`}
-            className="flex gap-4 bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md transition-shadow group">
-            <div className="w-20 h-20 flex-shrink-0 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-lg flex items-center justify-center text-2xl">
-              🤖
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <main className="max-w-6xl mx-auto px-4 py-10">
+        {/* パンくずリスト */}
+        <nav className="flex items-center gap-2 text-sm text-gray-400 mb-6">
+          <Link href="/" className="hover:text-purple-600 transition-colors">ホーム</Link>
+          <span>/</span>
+          <span className="text-gray-700">記事一覧</span>
+        </nav>
+
+        <div className="flex gap-8">
+          {/* メインコンテンツ */}
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">すべての記事</h1>
+            <p className="text-gray-500 text-sm mb-6">{articles.length}件の記事を掲載中</p>
+
+            <div className="space-y-4">
+              {articles.map((article: any) => (
+                <Link key={article.id} href={`/articles/${article.slug}`}
+                  className="flex gap-4 bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md transition-shadow group">
+                  <div className={`w-20 h-20 flex-shrink-0 rounded-lg flex items-center justify-center text-3xl bg-gradient-to-br ${
+                    article.category?.slug === "chatgpt" ? "from-emerald-100 to-teal-100" :
+                    article.category?.slug === "ai-business" ? "from-purple-100 to-indigo-100" :
+                    article.category?.slug === "ai-tools" ? "from-amber-100 to-orange-100" :
+                    article.category?.slug === "prompt" ? "from-red-100 to-pink-100" :
+                    article.category?.slug === "ai-income" ? "from-violet-100 to-purple-100" :
+                    article.category?.slug === "ai-news" ? "from-cyan-100 to-blue-100" :
+                    "from-gray-100 to-gray-200"
+                  }`}>
+                    {CATEGORY_ICONS[article.category?.slug] || "🤖"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h2 className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors line-clamp-1 mb-1">{article.title}</h2>
+                    <p className="text-sm text-gray-500 line-clamp-2">{article.excerpt}</p>
+                    <div className="flex items-center gap-4 mt-2">
+                      {article.category && (
+                        <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${CATEGORY_COLORS[article.category.slug] || "bg-gray-100 text-gray-600"}`}>
+                          {article.category.name}
+                        </span>
+                      )}
+                      <span className="text-xs text-gray-400">{formatDate(article.publishedAt || article.createdAt)}</span>
+                      <span className="text-xs text-gray-400">👁 {(article._count?.views || 0).toLocaleString()}</span>
+                      <span className="text-xs text-gray-400">📖 約{article.readingTime}分</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+              {articles.length === 0 && (
+                <div className="text-center py-20 text-gray-400">記事を準備中です</div>
+              )}
             </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors line-clamp-1">{article.title}</h2>
-              <p className="text-sm text-gray-500 line-clamp-2 mt-1">{article.excerpt}</p>
-              <div className="flex items-center gap-4 mt-2">
-                {article.category && <span className="text-xs text-purple-600">{article.category.name}</span>}
-                <span className="text-xs text-gray-400">{formatDate(article.publishedAt || article.createdAt)}</span>
-                <span className="text-xs text-gray-400">👁 {(article._count?.views||0).toLocaleString()}</span>
-                <span className="text-xs text-gray-400">📖 約{article.readingTime}分</span>
-              </div>
+          </div>
+
+          {/* サイドバー */}
+          <aside className="hidden lg:block w-56 flex-shrink-0">
+            <div className="bg-white rounded-xl border border-gray-100 p-4 sticky top-4">
+              <h2 className="font-bold text-gray-900 text-sm mb-4">📂 カテゴリで絞り込む</h2>
+              <ul className="space-y-1.5">
+                {categories.map((cat: any) => (
+                  <li key={cat.id}>
+                    <Link href={`/category/${cat.slug}`}
+                      className="flex items-center justify-between text-sm px-3 py-2 rounded-lg text-gray-600 hover:bg-purple-50 hover:text-purple-700 transition-colors">
+                      <span>{CATEGORY_ICONS[cat.slug] || "🤖"} {cat.name}</span>
+                      <span className="text-xs text-gray-400">{cat._count?.articles || 0}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </Link>
-        ))}
-        {articles.length === 0 && (
-          <div className="text-center py-20 text-gray-400">記事を準備中です</div>
-        )}
-      </div>
-    </main>
+          </aside>
+        </div>
+      </main>
+    </>
   );
 }
