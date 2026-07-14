@@ -9,9 +9,18 @@ import path from "path";
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient };
 
 function createPrismaClient() {
-  const dbPath = path.resolve(process.cwd(), "dev.db");
-  const adapter = new PrismaLibSql({ url: `file:${dbPath}` } as any);
-  return new PrismaClient({ adapter } as any);
+  // Turso（本番）またはローカルSQLite（開発）を自動切替
+  const tursoUrl = process.env.TURSO_DATABASE_URL;
+  const tursoToken = process.env.TURSO_AUTH_TOKEN;
+
+  if (tursoUrl && tursoToken) {
+    const adapter = new PrismaLibSql({ url: tursoUrl, authToken: tursoToken } as any);
+    return new PrismaClient({ adapter } as any);
+  } else {
+    const dbPath = path.resolve(process.cwd(), "dev.db");
+    const adapter = new PrismaLibSql({ url: `file:${dbPath}` } as any);
+    return new PrismaClient({ adapter } as any);
+  }
 }
 
 export const prisma = globalForPrisma.prisma || createPrismaClient();
