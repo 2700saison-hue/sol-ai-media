@@ -11,6 +11,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: { default: "AI活用ラボ", template: "%s | AI活用ラボ" },
   description: "最新AIツールの使い方・活用事例・副業情報を毎日お届け",
+  verification: {
+    google: "cARExcA_7tzkvOE198ZzcUS1FKgAkhbe65yj2In9bF8",
+  },
   openGraph: {
     type: "website",
     locale: "ja_JP",
