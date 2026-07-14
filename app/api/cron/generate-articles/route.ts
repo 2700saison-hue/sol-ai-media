@@ -74,7 +74,7 @@ export async function GET(req: NextRequest) {
   try {
     // 記事のないキーワードを最大3件取得
     const allKeywords = await prisma.keyword.findMany({
-      orderBy: { monthlySearchVolume: "desc" },
+      orderBy: { searchVolume: "desc" },
     });
 
     const existingTitles = await prisma.article.findMany({
