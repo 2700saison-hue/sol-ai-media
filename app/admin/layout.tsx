@@ -35,7 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Link>
         </div>
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          {navItems.map(item => (
+          {navItems.map((item: any) => (
             <Link
               key={item.href}
               href={item.href}

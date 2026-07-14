@@ -37,7 +37,7 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
         <p className="text-sm text-gray-400 mt-1">{articles.length}件の記事</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {articles.map(article => (
+        {articles.map((article: any) => (
           <Link key={article.id} href={`/articles/${article.slug}`}
             className="flex gap-3 bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md transition-shadow group">
             <div className="w-16 h-16 flex-shrink-0 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-lg flex items-center justify-center text-2xl">🤖</div>

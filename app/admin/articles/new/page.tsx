@@ -111,11 +111,11 @@ export default function NewArticlePage() {
           <div className="bg-white rounded-xl border border-gray-100 p-4">
             <h3 className="font-semibold text-gray-800 mb-3 text-sm">公開設定</h3>
             <div className="space-y-2">
-              {["draft","published","scheduled"].map(s => (
+              {["draft","published","scheduled"].map((s: any) => (
                 <label key={s} className="flex items-center gap-2 cursor-pointer">
                   <input type="radio" name="status" value={s} checked={form.status === s}
                     onChange={() => setForm(f => ({...f, status: s}))} className="text-purple-600" />
-                  <span className="text-sm">{{ draft:"下書き", published:"公開", scheduled:"予約公開" }[s]}</span>
+                  <span className="text-sm">{{ draft:"下書き", published:"公開", scheduled:"予約公開" }[s as keyof typeof statusLabels]}</span>
                 </label>
               ))}
             </div>

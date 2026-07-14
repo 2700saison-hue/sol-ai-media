@@ -47,7 +47,7 @@ export default function KeywordsPage() {
       </div>
 
       <div className="flex gap-2">
-        {["all","pending","published"].map(f => (
+        {["all","pending","published"].map((f: any) => (
           <button key={f} onClick={() => { setFilter(f); load(f === "all" ? undefined : f); }}
             className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${filter === f ? "bg-purple-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:border-purple-400"}`}>
             {{ all:"すべて", pending:"未着手", published:"公開済み" }[f]}
@@ -75,7 +75,7 @@ export default function KeywordsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {keywords.map(kw => (
+              {keywords.map((kw: any) => (
                 <tr key={kw.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
                     <p className="text-sm font-medium text-gray-800">{kw.keyword}</p>

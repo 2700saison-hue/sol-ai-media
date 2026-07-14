@@ -44,7 +44,7 @@ export default function SettingsPage() {
 
       <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-5">
         <h2 className="font-semibold text-gray-800">サイト基本設定</h2>
-        {fields.map(f => (
+        {fields.map((f: any) => (
           <div key={f.key}>
             <label className="block text-sm font-medium text-gray-700 mb-1">{f.label}</label>
             <input type={f.type} value={settings[f.key]||""} placeholder={f.placeholder}

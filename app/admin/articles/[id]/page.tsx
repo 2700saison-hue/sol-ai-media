@@ -118,11 +118,11 @@ export default function ArticleEditPage({ params }: { params: Promise<{ id: stri
           </div>
           <div className="bg-white rounded-xl border border-gray-100 p-4">
             <h3 className="font-semibold text-gray-800 mb-3 text-sm">公開設定</h3>
-            {["draft","published","scheduled"].map(s => (
+            {["draft","published","scheduled"].map((s: any) => (
               <label key={s} className="flex items-center gap-2 cursor-pointer mb-2">
                 <input type="radio" name="status" value={s} checked={form.status === s}
                   onChange={() => setForm((f: any) => ({...f, status: s}))} />
-                <span className="text-sm">{{ draft:"下書き", published:"公開中", scheduled:"予約公開" }[s]}</span>
+                <span className="text-sm">{({ draft:"下書き", published:"公開中", scheduled:"予約公開" } as Record<string,string>)[s]}</span>
               </label>
             ))}
           </div>

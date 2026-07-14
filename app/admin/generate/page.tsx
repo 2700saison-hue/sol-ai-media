@@ -96,7 +96,7 @@ export default function GeneratePage() {
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 outline-none mb-2"
             >
               <option value="">-- キーワードを選択 --</option>
-              {keywords.map(kw => (
+              {keywords.map((kw: any) => (
                 <option key={kw.id} value={kw.id}>
                   {kw.keyword} (月間{kw.searchVolume.toLocaleString()}回)
                 </option>
@@ -162,7 +162,7 @@ export default function GeneratePage() {
             <p className="text-gray-400 text-sm text-center py-8">未着手キーワードがありません</p>
           ) : (
             <div className="space-y-2 max-h-80 overflow-y-auto">
-              {keywords.map(kw => (
+              {keywords.map((kw: any) => (
                 <div key={kw.id}
                   className="flex items-center gap-3 p-2.5 rounded-lg border border-gray-100 hover:border-purple-200 cursor-pointer transition-colors"
                   onClick={() => setForm(f => ({ ...f, keyword: kw.keyword, keywordId: kw.id }))}

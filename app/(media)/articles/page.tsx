@@ -19,7 +19,7 @@ export default async function ArticlesPage() {
     <main className="max-w-5xl mx-auto px-4 py-10">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">すべての記事 ({articles.length}件)</h1>
       <div className="space-y-4">
-        {articles.map(article => (
+        {articles.map((article: any) => (
           <Link key={article.id} href={`/articles/${article.slug}`}
             className="flex gap-4 bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md transition-shadow group">
             <div className="w-20 h-20 flex-shrink-0 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-lg flex items-center justify-center text-2xl">

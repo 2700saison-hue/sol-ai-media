@@ -24,7 +24,7 @@ export default function AnalyticsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">📈 アナリティクス</h1>
         <div className="flex gap-2">
-          {[7, 30, 90].map(d => (
+          {[7, 30, 90].map((d: any) => (
             <button key={d} onClick={() => setDays(d)}
               className={`px-3 py-1.5 text-sm rounded-lg font-medium ${days === d ? "bg-purple-600 text-white" : "bg-white border border-gray-200 text-gray-600 hover:border-purple-400"}`}>
               {d}日
@@ -40,7 +40,7 @@ export default function AnalyticsPage() {
           { label:"本日PV", value:(ov.todayViews||0).toLocaleString(), color:"text-indigo-600" },
           { label:"月間PV推計", value:(ov.projectedMonthlyPV||0).toLocaleString(), color:"text-sky-600" },
           { label:"公開記事数", value:(ov.publishedArticles||0).toLocaleString(), color:"text-gray-900" },
-        ].map(card => (
+        ].map((card: any) => (
           <div key={card.label} className="bg-white rounded-xl border border-gray-100 p-5">
             <p className="text-xs text-gray-500 font-medium uppercase">{card.label}</p>
             <p className={`text-3xl font-bold mt-1 ${card.color}`}>{card.value}</p>
@@ -73,14 +73,14 @@ export default function AnalyticsPage() {
             { phase:"Phase 1（1〜2ヶ月）", goal:"月間5,000 PV", actions:["週3〜5記事をAI生成・公開","ロングテールキーワード20〜50件を攻略","内部リンク構造を整備","GoogleサーチコンソールでURL登録"], color:"bg-blue-50 border-blue-200" },
             { phase:"Phase 2（3〜6ヶ月）", goal:"月間3万 PV", actions:["毎日1記事のペースに加速","SNS投稿と連動してPVを底上げ","人気カテゴリを深掘りしてクラスター構築","アフィリエイト収益化を開始"], color:"bg-purple-50 border-purple-200" },
             { phase:"Phase 3（7〜12ヶ月）", goal:"月間10万+ PV", actions:["AI生成×人間編集でコンテンツを月50〜100本","被リンク獲得・AO対策強化","広告案件・スポンサード記事を開始","YouTube・ニュースレターと連動"], color:"bg-emerald-50 border-emerald-200" },
-          ].map(step => (
+          ].map((step: any) => (
             <div key={step.phase} className={`border rounded-xl p-4 ${step.color}`}>
               <div className="flex items-center justify-between mb-2">
                 <h3 className="font-semibold text-gray-800 text-sm">{step.phase}</h3>
                 <span className="text-xs font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">{step.goal}</span>
               </div>
               <ul className="space-y-1">
-                {step.actions.map((a, i) => <li key={i} className="text-xs text-gray-600 flex items-start gap-1.5"><span className="text-purple-400 mt-0.5">•</span>{a}</li>)}
+                {step.actions.map((a: any, i: number) => <li key={i} className="text-xs text-gray-600 flex items-start gap-1.5"><span className="text-purple-400 mt-0.5">•</span>{a}</li>)}
               </ul>
             </div>
           ))}

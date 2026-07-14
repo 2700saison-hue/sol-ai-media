@@ -23,7 +23,7 @@ export default function MediaLayout({ children }: { children: React.ReactNode })
             <span className="font-bold text-gray-900">AI活用ラボ</span>
           </Link>
           <nav className="hidden md:flex items-center gap-1">
-            {categories.slice(0,4).map(c => (
+            {categories.slice(0,4).map((c: any) => (
               <Link key={c.slug} href={`/category/${c.slug}`} className="text-sm text-gray-600 hover:text-purple-600 px-3 py-1.5 rounded-md hover:bg-purple-50 transition-colors">
                 {c.name}
               </Link>
@@ -44,7 +44,7 @@ export default function MediaLayout({ children }: { children: React.ReactNode })
             <div>
               <h3 className="text-white font-semibold mb-3 text-sm">カテゴリ</h3>
               <ul className="space-y-1">
-                {categories.map(c => (
+                {categories.map((c: any) => (
                   <li key={c.slug}><Link href={`/category/${c.slug}`} className="text-xs hover:text-white transition-colors">{c.name}</Link></li>
                 ))}
               </ul>

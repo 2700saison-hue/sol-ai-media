@@ -46,7 +46,7 @@ export default async function HomePage() {
           <h1 className="text-4xl font-bold mb-4">AI活用ラボ</h1>
           <p className="text-purple-200 text-lg mb-8">ChatGPT・Claude・Geminiの使い方から、AI副業・業務効率化まで<br />最新情報を毎日お届けします</p>
           <div className="flex flex-wrap justify-center gap-3">
-            {["ChatGPT活用術","AI業務効率化","プロンプト技術","AI副業"].map(tag => (
+            {["ChatGPT活用術","AI業務効率化","プロンプト技術","AI副業"].map((tag: any) => (
               <span key={tag} className="bg-white/10 text-white text-sm px-4 py-1.5 rounded-full">{tag}</span>
             ))}
           </div>
@@ -61,7 +61,7 @@ export default async function HomePage() {
               <span>🔥</span> 人気記事
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {featured.map(article => (
+              {featured.map((article: any) => (
                 <Link key={article.id} href={`/articles/${article.slug}`}
                   className="group block bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                   <div className="aspect-video bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center text-4xl">
@@ -95,7 +95,7 @@ export default async function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {articles.map(article => (
+              {articles.map((article: any) => (
                 <Link key={article.id} href={`/articles/${article.slug}`}
                   className="group block bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
                   <div className="aspect-video bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center text-3xl">

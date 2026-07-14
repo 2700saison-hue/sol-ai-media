@@ -76,7 +76,7 @@ export default function AffiliatesPage() {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {loading ? (
           [...Array(6)].map((_,i) => <div key={i} className="h-36 bg-gray-200 rounded-xl animate-pulse" />)
-        ) : products.map(p => (
+        ) : products.map((p: any) => (
           <div key={p.id} className={`bg-white rounded-xl border p-4 ${p.isActive ? "border-gray-100" : "border-gray-100 opacity-60"}`}>
             <div className="flex items-start justify-between mb-2">
               <div>

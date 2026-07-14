@@ -47,7 +47,7 @@ export default function ArticlesPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: newStatus }),
     });
-    setArticles(prev => prev.map(a => a.id === article.id ? { ...a, status: newStatus } : a));
+    setArticles(prev => prev.map((a: any) => a.id === article.id ? { ...a, status: newStatus } : a));
   }
 
   return (
@@ -69,7 +69,7 @@ export default function ArticlesPage() {
 
       {/* Filter tabs */}
       <div className="flex gap-2">
-        {["all","published","draft","scheduled"].map(f => (
+        {["all","published","draft","scheduled"].map((f: any) => (
           <button
             key={f}
             onClick={() => changeFilter(f)}
@@ -101,7 +101,7 @@ export default function ArticlesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {articles.map(article => {
+              {articles.map((article: any) => {
                 const s = STATUS_LABEL[article.status] ?? STATUS_LABEL.draft;
                 return (
                   <tr key={article.id} className="hover:bg-gray-50 transition-colors">

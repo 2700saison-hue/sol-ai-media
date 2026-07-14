@@ -102,7 +102,7 @@ export default function RevenuePage() {
           <tbody className="divide-y divide-gray-50">
             {loading ? (
               <tr><td colSpan={4} className="text-center text-gray-400 py-8">読み込み中...</td></tr>
-            ) : revenues.map(r => (
+            ) : revenues.map((r: any) => (
               <tr key={r.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3">
                   <span className={`text-xs px-2 py-1 rounded-full font-medium ${TYPE_COLOR[r.type]||"bg-gray-100 text-gray-600"}`}>{TYPE_LABEL[r.type]||r.type}</span>

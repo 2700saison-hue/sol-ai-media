@@ -117,7 +117,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           {/* Tags */}
           {article.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-6">
-              {article.tags.map(at => (
+              {article.tags.map((at: any) => (
                 <span key={at.tagId} className="text-xs bg-gray-100 text-gray-600 px-3 py-1 rounded-full">#{at.tag.name}</span>
               ))}
             </div>
@@ -138,7 +138,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             <div className="bg-white rounded-xl border border-gray-100 p-5">
               <h3 className="font-semibold text-gray-800 mb-3 text-sm">関連記事</h3>
               <div className="space-y-3">
-                {related.map(r => (
+                {related.map((r: any) => (
                   <Link key={r.id} href={`/articles/${r.slug}`} className="block hover:bg-gray-50 rounded-lg p-2 -mx-2 transition-colors group">
                     <p className="text-sm text-gray-800 group-hover:text-purple-600 line-clamp-2 font-medium">{r.title}</p>
                     <p className="text-xs text-gray-400 mt-1">{r.category?.name}</p>
