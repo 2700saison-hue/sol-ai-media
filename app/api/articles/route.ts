@@ -28,9 +28,18 @@ export async function GET(req: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "20");
     const skip = (page - 1) * limit;
 
+    const q = searchParams.get("q");
+
     const where: any = {};
     if (status) where.status = status;
     if (categorySlug) where.category = { slug: categorySlug };
+    if (q) {
+      where.OR = [
+        { title: { contains: q } },
+        { excerpt: { contains: q } },
+        { seoKeywords: { contains: q } },
+      ];
+    }
 
     const [articles, total] = await Promise.all([
       prisma.article.findMany({
