@@ -64,6 +64,8 @@ export default function MediaLayout({ children }: { children: React.ReactNode })
               <h3 className="text-white font-semibold mb-3 text-sm">情報</h3>
               <ul className="space-y-1">
                 <li><span className="text-xs">お問い合わせ: contact@ai-media.jp</span></li>
+                <li><Link href="/feed" className="text-xs hover:text-white flex items-center gap-1">📡 RSSフィード</Link></li>
+                <li><Link href="/sitemap.xml" className="text-xs hover:text-white">サイトマップ</Link></li>
               </ul>
             </div>
           </div>

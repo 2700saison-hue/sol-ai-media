@@ -111,7 +111,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   prisma.articleView.create({ data: { articleId: article.id, referer: "direct" } }).catch(() => {});
 
-  const [related, popular, prevNext] = await Promise.all([
+  const [related, popular, prevNext, allArticles] = await Promise.all([
     prisma.article.findMany({
       where: { status: "published", categoryId: article.categoryId, NOT: { id: article.id } },
       include: { category: true },
@@ -135,10 +135,42 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         select: { slug: true, title: true },
       }),
     ]),
+    prisma.article.findMany({
+      where: { status: "published", NOT: { id: article.id } },
+      select: { slug: true, title: true, seoKeywords: true },
+      take: 100,
+      orderBy: { publishedAt: "desc" },
+    }),
   ]);
   const [prevArticle, nextArticle] = prevNext;
 
-  const htmlContent = renderMarkdown(article.content);
+  // 内部リンク自動挿入: 他記事のタイトルキーワードが本文に含まれていれば自動リンク
+  function insertInternalLinks(content: string): string {
+    let result = content;
+    // 本文内でのリンク挿入は最大5件・同一スラグは1回のみ
+    const inserted = new Set<string>();
+    for (const a of (allArticles as Array<{slug: string; title: string; seoKeywords: string | null}>)) {
+      if (inserted.size >= 5) break;
+      if (inserted.has(a.slug)) continue;
+      // タイトルから主キーワード（3文字以上）を抽出
+      const kws = a.title.split(/[\s・ー]/).filter((w: string) => w.length >= 4).slice(0, 2);
+      for (const kw of kws) {
+        // コードブロックやリンク内は対象外
+        const escaped = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp(`(?<!href="[^"]*|<[^>]*)${escaped}`, 'g');
+        if (re.test(result)) {
+          result = result.replace(new RegExp(`(?<![">])${escaped}(?![^<]*>)`, ''),
+            `<a href="/articles/${a.slug}" class="text-purple-600 hover:underline font-medium">${kw}</a>`);
+          inserted.add(a.slug);
+          break;
+        }
+      }
+    }
+    return result;
+  }
+
+  const rawHtml = renderMarkdown(article.content);
+  const htmlContent = insertInternalLinks(rawHtml);
   const headings = extractHeadings(article.content);
   const faqs = extractFAQ(article.content);
   const articleUrl = `${SITE_URL}/articles/${article.slug}`;
