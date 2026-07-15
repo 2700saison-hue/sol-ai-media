@@ -10,6 +10,14 @@ interface Props {
   large?: boolean;
 }
 
+declare global { interface Window { gtag?: (...args: unknown[]) => void; } }
+
+function trackShare(method: string, title: string) {
+  if (typeof window !== "undefined" && window.gtag) {
+    window.gtag("event", "share", { method, content_type: "article", item_id: title });
+  }
+}
+
 export default function ShareButtons({ url, title, large }: Props) {
   const [copied, setCopied] = useState(false);
 
@@ -21,6 +29,7 @@ export default function ShareButtons({ url, title, large }: Props) {
       await navigator.clipboard.writeText(url);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      trackShare("copy", title);
     } catch {
       // fallback
     }
@@ -37,6 +46,7 @@ export default function ShareButtons({ url, title, large }: Props) {
         href={`https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}&hashtags=AI活用,ChatGPT`}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => trackShare("X", title)}
         className={`${btnClass} bg-black text-white`}
         aria-label="Xでシェア"
       >
@@ -51,6 +61,7 @@ export default function ShareButtons({ url, title, large }: Props) {
         href={`https://social-plugins.line.me/lineit/share?url=${encodedUrl}`}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => trackShare("LINE", title)}
         className={`${btnClass} bg-[#06C755] text-white`}
         aria-label="LINEでシェア"
       >
@@ -65,6 +76,7 @@ export default function ShareButtons({ url, title, large }: Props) {
         href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => trackShare("Facebook", title)}
         className={`${btnClass} bg-[#1877F2] text-white`}
         aria-label="Facebookでシェア"
       >

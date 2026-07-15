@@ -8,6 +8,7 @@ import { formatDate } from "@/lib/utils";
 import type { Metadata } from "next";
 import ShareButtons from "@/components/ShareButtons";
 import TableOfContents from "@/components/TableOfContents";
+import ScrollDepthTracker from "@/components/ScrollDepthTracker";
 
 export const revalidate = 3600; // 1時間キャッシュ (CDN配信で高速化)
 export const dynamicParams = true;
@@ -224,6 +225,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
   return (
     <>
+      <ScrollDepthTracker articleTitle={article.title} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       {faqJsonLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />}
