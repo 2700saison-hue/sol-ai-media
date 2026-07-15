@@ -52,8 +52,16 @@ const CATEGORY_COLORS: Record<string, string> = {
   "ai-news": "bg-cyan-100 text-cyan-700",
 };
 
+async function getStats() {
+  const [totalArticles, totalViews] = await Promise.all([
+    prisma.article.count({ where: { status: "published" } }),
+    prisma.articleView.count(),
+  ]);
+  return { totalArticles, totalViews };
+}
+
 export default async function HomePage() {
-  const [articles, featured] = await Promise.all([getArticles(), getFeatured()]);
+  const [articles, featured, stats] = await Promise.all([getArticles(), getFeatured(), getStats()]);
 
   const websiteJsonLd = {
     "@context": "https://schema.org",
@@ -88,6 +96,23 @@ export default async function HomePage() {
           <div className="text-5xl mb-4">🤖</div>
           <h1 className="text-4xl font-bold mb-4">AI活用ラボ</h1>
           <p className="text-purple-200 text-lg mb-8">ChatGPT・Claude・Geminiの使い方から、AI副業・業務効率化まで<br />最新情報を毎日お届けします</p>
+          {/* 統計バッジ */}
+          <div className="flex items-center justify-center gap-6 mb-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-white">{stats.totalArticles}</div>
+              <div className="text-xs text-purple-300">公開記事数</div>
+            </div>
+            <div className="w-px h-8 bg-white/20" />
+            <div className="text-center">
+              <div className="text-2xl font-bold text-white">毎日更新</div>
+              <div className="text-xs text-purple-300">新着記事</div>
+            </div>
+            <div className="w-px h-8 bg-white/20" />
+            <div className="text-center">
+              <div className="text-2xl font-bold text-white">無料</div>
+              <div className="text-xs text-purple-300">全記事閲覧</div>
+            </div>
+          </div>
           <form action="/search" method="get" className="max-w-xl mx-auto mb-6">
             <div className="flex gap-2">
               <input type="text" name="q" placeholder="記事を検索する（例: ChatGPT使い方）"
