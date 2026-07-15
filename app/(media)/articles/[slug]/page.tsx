@@ -196,10 +196,20 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     url: articleUrl,
     datePublished: article.publishedAt?.toISOString(),
     dateModified: article.updatedAt?.toISOString(),
-    author: { "@type": "Organization", name: "AI活用ラボ編集部", url: SITE_URL },
-    publisher: { "@type": "Organization", name: "AI活用ラボ", url: SITE_URL },
+    author: { "@type": "Organization", name: "AI活用ラボ編集部", url: SITE_URL, logo: { "@type": "ImageObject", url: `${SITE_URL}/favicon.ico` } },
+    publisher: { "@type": "Organization", name: "AI活用ラボ", url: SITE_URL, logo: { "@type": "ImageObject", url: `${SITE_URL}/favicon.ico` } },
     mainEntityOfPage: { "@type": "WebPage", "@id": articleUrl },
     inLanguage: "ja",
+    wordCount: article.wordCount,
+    keywords: article.seoKeywords || undefined,
+    articleSection: article.category?.name || "AI活用",
+    timeRequired: `PT${article.readingTime}M`,
+    image: {
+      "@type": "ImageObject",
+      url: `${articleUrl}/opengraph-image`,
+      width: 1200,
+      height: 630,
+    },
   };
 
   const breadcrumbJsonLd = {
