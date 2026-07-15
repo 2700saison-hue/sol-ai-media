@@ -310,6 +310,19 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               </div>
             )}
 
+            {/* 著者情報 (E-E-A-T向上) */}
+            <div className="mt-10 p-5 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl border border-purple-100 flex items-start gap-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-full flex items-center justify-center text-2xl flex-shrink-0">🤖</div>
+              <div>
+                <p className="font-bold text-gray-900 text-sm">AI活用ラボ編集部</p>
+                <p className="text-xs text-gray-500 mt-0.5">ChatGPT・Claude・Geminiなど最新AIツールを毎日使いこなす専門チーム。AI活用歴5年以上のエンジニア・ライターが実践的な情報をお届けします。</p>
+                <div className="flex gap-3 mt-2">
+                  <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">AI活用5年+</span>
+                  <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full">記事{article.wordCount.toLocaleString()}文字</span>
+                </div>
+              </div>
+            </div>
+
             {/* SNSシェア（記事末尾） */}
             <div className="mt-10 p-6 bg-gray-50 rounded-xl text-center border border-gray-100">
               <p className="text-sm font-semibold text-gray-700 mb-4">👇 この記事が役に立ったらシェアをお願いします！</p>
