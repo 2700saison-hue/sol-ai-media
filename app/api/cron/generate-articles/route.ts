@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
       existingTitles.flatMap(a => (a.seoKeywords || "").split(",").map((k: string) => k.trim()))
     );
 
-    const pending = allKeywords.filter(k => !usedKeywords.has(k.keyword)).slice(0, 3);
+    const pending = allKeywords.filter(k => !usedKeywords.has(k.keyword)).slice(0, 5);
 
     if (pending.length === 0) {
       return NextResponse.json({ message: "全キーワードの記事が作成済みです", generated: 0 });
