@@ -7,7 +7,13 @@ import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 import type { Metadata } from "next";
 
-export const revalidate = 300;
+export const revalidate = 3600;
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const categories = await prisma.category.findMany({ select: { slug: true } });
+  return categories.map((c) => ({ slug: c.slug }));
+}
 
 const SITE_URL = "https://media.seasonsezon.co.jp";
 

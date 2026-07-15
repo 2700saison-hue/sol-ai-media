@@ -9,7 +9,18 @@ import type { Metadata } from "next";
 import ShareButtons from "@/components/ShareButtons";
 import TableOfContents from "@/components/TableOfContents";
 
-export const revalidate = 300;
+export const revalidate = 3600; // 1時間キャッシュ (CDN配信で高速化)
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  const articles = await prisma.article.findMany({
+    where: { status: "published" },
+    select: { slug: true },
+    orderBy: { publishedAt: "desc" },
+    take: 200,
+  });
+  return articles.map((a) => ({ slug: a.slug }));
+}
 
 const SITE_URL = process.env.NEXTAUTH_URL || "https://media.seasonsezon.co.jp";
 
