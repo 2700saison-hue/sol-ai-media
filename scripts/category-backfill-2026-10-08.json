@@ -1,0 +1,150 @@
+{
+ "note": "元はすべて categoryId=null。戻すときは id を null に更新",
+ "plan": [
+  {
+   "id": "cmrk4t9380002xmh1prcguisq",
+   "title": "ChatGPT使い方完全ガイド【初心者向け】登録から活用まで徹底解説",
+   "cat": "chatgpt"
+  },
+  {
+   "id": "cmrk4ukq40004xmh1pjdy15nz",
+   "title": "ChatGPTプロンプトをコピペするだけ！業務効率化に使える厳選テンプレート集",
+   "cat": "prompt"
+  },
+  {
+   "id": "cmrk4w0x20006xmh19fy07suo",
+   "title": "AI画像生成を無料で始める完全ガイド【2024年最新・おすすめツール7選】",
+   "cat": "ai-tools"
+  },
+  {
+   "id": "cmrk4xc550008xmh15738jduv",
+   "title": "AI副業の稼ぎ方完全ガイド｜初心者でも月5万円を目指せる7つの方法",
+   "cat": "ai-income"
+  },
+  {
+   "id": "cmrk4yjhd000axmh1lrok3kcu",
+   "title": "ChatGPTを仕事に活用する方法【2024年版】具体的な使い方と事例を徹底解説",
+   "cat": "chatgpt"
+  },
+  {
+   "id": "cmrk5f21e000cxmh1a3w3uj4n",
+   "title": "Gemini AI 使い方完全ガイド｜ビジネス・副業で即使える実践テクニック",
+   "cat": "ai-income"
+  },
+  {
+   "id": "cmrk5hr2d000fxmh1jll3lq8b",
+   "title": "Claude AI 使い方完全ガイド｜ビジネスで即使える活用法と事例を徹底解説",
+   "cat": "ai-tools"
+  },
+  {
+   "id": "cmrk5j09c000hxmh14jkg9j65",
+   "title": "ChatGPTで文章作成を効率化！ビジネスで使える具体的な活用法と注意点",
+   "cat": "chatgpt"
+  },
+  {
+   "id": "cmrkcvwba0001qmh1x8p01oif",
+   "title": "ChatGPT使い方完全ガイド【初心者向け】今日から使える実践テクニック10選",
+   "cat": "chatgpt"
+  },
+  {
+   "id": "cmrkcxgmg0003qmh1chq2wotx",
+   "title": "ChatGPTプロンプトをコピペで使える！業務効率化に役立つ厳選テンプレ集",
+   "cat": "prompt"
+  },
+  {
+   "id": "cmrkcyvry0005qmh1tknrjf24",
+   "title": "AI画像生成を無料で始める完全ガイド【2024年最新版】おすすめツール5選と使い方",
+   "cat": "ai-tools"
+  },
+  {
+   "id": "cmrkd09ke0007qmh1xtntbw2y",
+   "title": "AI副業で稼ぐ方法7選｜初心者でも月5万円を目指せる具体的な始め方",
+   "cat": "ai-income"
+  },
+  {
+   "id": "cmrkd1ho30009qmh1qejeuxbl",
+   "title": "ChatGPTの仕事活用術【2024年版】具体的な使い方と業務効率化の実例を徹底解説",
+   "cat": "ai-business"
+  },
+  {
+   "id": "cmrkd2u6y000bqmh1j1rg3j5r",
+   "title": "Gemini AI 使い方完全ガイド｜ビジネスで今すぐ使える実践テクニック",
+   "cat": "ai-tools"
+  },
+  {
+   "id": "cmrkd45jy000dqmh18mgo4rl8",
+   "title": "AIツール比較2026年版｜ビジネス・副業で使える厳選10選と選び方",
+   "cat": "ai-income"
+  },
+  {
+   "id": "cmrkd5fnl000fqmh1az6nkiwn",
+   "title": "Claude AI 使い方完全ガイド｜ビジネスで即使える実践テクニック10選",
+   "cat": "ai-tools"
+  },
+  {
+   "id": "cmrkd6prp000hqmh1rglbaodv",
+   "title": "ChatGPTで文章作成を効率化！ビジネスで使える具体的な活用法と注意点",
+   "cat": "chatgpt"
+  },
+  {
+   "id": "cmrkd85eb000kqmh1peiac688",
+   "title": "Copilot 使い方完全ガイド｜Office業務を劇的に効率化する実践テクニック",
+   "cat": "ai-tools"
+  },
+  {
+   "id": "cmrkd91o5000lqmh11ngyezj4",
+   "title": "プロンプトエンジニアリング入門｜AIを使いこなす基本スキルを完全解説",
+   "cat": "prompt"
+  },
+  {
+   "id": "cmrkdaacx000nqmh1mzu55tj8",
+   "title": "プロンプトテンプレート無料まとめ｜すぐ使えるAI活用術2024",
+   "cat": "prompt"
+  },
+  {
+   "id": "cmrkdbl1m000pqmh16s4bacag",
+   "title": "GPT-4o 使い方完全ガイド｜ビジネスで即使える活用術と事例を徹底解説",
+   "cat": "ai-tools"
+  },
+  {
+   "id": "cmrkdel4u000sqmh1oc1ek528",
+   "title": "AIブログの書き方完全ガイド｜初心者でも月収を生む記事作成術",
+   "cat": "ai-income"
+  },
+  {
+   "id": "cmrkdfybf000uqmh147xo7h05",
+   "title": "生成AIのビジネス活用事例15選｜導入メリット・デメリットと実践ポイント",
+   "cat": "ai-business"
+  },
+  {
+   "id": "cmrkdh7h8000wqmh1iib8o7yn",
+   "title": "Claude 3.5 Sonnet 使い方完全ガイド｜ビジネス活用から副業まで徹底解説",
+   "cat": "ai-income"
+  },
+  {
+   "id": "cmrkdiiv5000yqmh181lg819s",
+   "title": "Midjourney 使い方を日本語で完全解説！初心者でも今すぐ始められるAI画像生成ガイド",
+   "cat": "ai-tools"
+  },
+  {
+   "id": "cmrkdjtgq0010qmh1bxpmna5o",
+   "title": "AI自動化でビジネスを加速｜2024年最新の活用事例と導入メリット完全ガイド",
+   "cat": "ai-business"
+  },
+  {
+   "id": "cmrkdnain0013qmh1gfmqrf2u",
+   "title": "AI業務効率化の具体例15選｜今日から使える実践ガイド2024",
+   "cat": "ai-business"
+  },
+  {
+   "id": "cmrkdrzsp0017qmh175t3bbb6",
+   "title": "AI SEO対策の完全ガイド｜初心者でも使える厳選ツールと実践法",
+   "cat": "ai-business"
+  },
+  {
+   "id": "cmrkdte6k0019qmh1engp9jqz",
+   "title": "AI SEO対策の完全ガイド｜2024年最新ツールと具体的な活用法を徹底解説",
+   "cat": "ai-business"
+  }
+ ]
+}

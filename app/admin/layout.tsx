@@ -6,6 +6,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
+import { SessionProvider } from "@/components/SessionProvider";
 
 const navItems = [
   { href: "/admin/dashboard", icon: "📊", label: "ダッシュボード" },
@@ -22,6 +23,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
 
   return (
+    <SessionProvider>
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
       <aside className="fixed top-0 left-0 h-screen w-60 bg-gray-900 text-white flex flex-col z-50">
@@ -67,5 +69,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {children}
       </main>
     </div>
+    </SessionProvider>
   );
 }
